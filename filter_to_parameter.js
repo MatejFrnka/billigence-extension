@@ -114,6 +114,7 @@
             dashboard.worksheets[j].clearFilterAsync(filterName).catch(_ => {
               // don't do anything - errors will be thrown for every worksheet that doesn't have the filter
               // todo: this may reset filters on other worksheets than the intended ones. Should this be applied to only one worksheet or to all?
+              // todo: it would be better to do it for one specific worksheet to improve performance for bigger projects
             });
           }
         }
