@@ -31,8 +31,6 @@
     });
     parameters = await collectPromises(parameterPromises, (p) => p.id)
     filters = await collectPromises(filterPromises, (p) => p.fieldId)
-    console.log(parameters)
-    console.log(filters)
   }
 
   async function collectPromises(promiseArray, identifier) {
@@ -126,7 +124,6 @@
     });
 
     if (currentValue !== null) {
-      console.log("a")
       select.value = currentValue
     }
 
@@ -138,11 +135,18 @@
 
   function saveItems() {
     const items = Array.from(document.querySelectorAll('.item'));
+    let filters = []
     const savedData = items.map(item => {
       const selectBoxes = item.querySelectorAll('select');
+      filters.push(selectBoxes[0].value)
       return [selectBoxes[0].value, selectBoxes[1].value];
     });
-    closeDialog(savedData);
+
+    if (filters.length !== new Set(filters).size) {
+      alert("Filter must not be used more than once");
+    } else {
+      closeDialog(savedData);
+    }
   }
 
 })();

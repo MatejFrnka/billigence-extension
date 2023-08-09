@@ -6,15 +6,19 @@
   const PARAMETER_ALL_VALUE = "All"
   const CONFIGURE_PATH = `/config.html`;
 
-  const filterParamPairs = [
-    {filter: "REGION_NAME", param: "REGION"},
-    {filter: "DISTRICT_NAME", param: "DISTRICT"},
-    {filter: "TEAM_NAME", param: "TEAM"},
-    {filter: "BRANCH_NAME", param: "BRANCH"},
-    {filter: "EMP_NAME", param: "EMP"},
-  ]
-
   let resettingFilters = false;
+
+  function getFilterParamPairs() {
+
+    // in settings the key represents filter and the value represents parameter
+
+    const settings = tableau.extensions.settings.getAll()
+    let result = []
+    for (const key in settings) {
+      result.push({filter: key, param: settings[key]})
+    }
+    return result;
+  }
 
   $(document).ready(function () {
     tableau.extensions.initializeAsync({'configure': configure}).then(function () {
@@ -42,9 +46,9 @@
       // ....
 
     }).catch((error) => {
-      console.error(error)
-      //  ...
-      // ... code for error handling
+      if (error.errorCode !== tableau.ErrorCodes.DialogClosedByUser) {
+        console.error(error)
+      }
     });
   }
 
@@ -80,6 +84,7 @@
   }
 
   function findFilterPairIndex(filterName) {
+    const filterParamPairs = getFilterParamPairs();
     for (let i = 0; i < filterParamPairs.length; i++) {
       if (filterParamPairs[i].filter === filterName) {
         return i;
@@ -96,7 +101,7 @@
 
     // To get filter info, first get the dashboard.
     const dashboard = tableau.extensions.dashboardContent.dashboard;
-    const parameterName = filterParamPairs[pairIndex].param
+    const parameterName = getFilterParamPairs()[pairIndex].param
     dashboard.findParameterAsync(parameterName).then(function (param) {
       // skip if parameter is null
       if (!(param === null || param === undefined)) {
@@ -117,6 +122,7 @@
   // * int that states index to start resetting filters from in filterParamPairs array
   function resetFilters(resetFrom) {
     resettingFilters = true;
+    const filterParamPairs = getFilterParamPairs();
     try {
       const parameterPromises = [];
       // To get filter info, first get the dashboard.
@@ -129,6 +135,7 @@
       Promise.all(parameterPromises).then((returnedParams) => {
         for (let i = 0; i < returnedParams.length; i++) {
           // Reset parameter
+          // todo error thrown here
           returnedParams[i].changeValueAsync(PARAMETER_ALL_VALUE)
 
           // Reset filters in every worksheet
