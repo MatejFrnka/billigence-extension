@@ -4,6 +4,7 @@
 (function () {
 
   const PARAMETER_ALL_VALUE = "All"
+  const CONFIGURE_PATH = `/config.html`;
 
   const filterParamPairs = [
     {filter: "REGION_NAME", param: "REGION"},
@@ -16,13 +17,36 @@
   let resettingFilters = false;
 
   $(document).ready(function () {
-    tableau.extensions.initializeAsync().then(function () {
+    tableau.extensions.initializeAsync({'configure': configure}).then(function () {
+      configure()
       initializeListeners();
     }, function (err) {
       // Something went wrong in initialization.
       console.log('Error while Initializing: ' + err.toString());
     });
   });
+
+  function configure() {
+    const popupUrl = `${window.location.origin}${CONFIGURE_PATH}`;
+    console.log("configure")
+
+    tableau.extensions.ui.displayDialogAsync(popupUrl, 10, {
+      height: 500,
+      width: 500
+    }).then((_) => {
+      // The promise is resolved when the dialog has been expectedly closed, meaning that
+      // the popup extension has called tableau.extensions.ui.closeDialog.
+      // ...
+      console.log(tableau.extensions.settings.getAll())
+      // The close payload is returned from the popup extension via the closeDialog() method.
+      // ....
+
+    }).catch((error) => {
+      console.error(error)
+      //  ...
+      // ... code for error handling
+    });
+  }
 
   function initializeListeners() {
     // To get filter info, first get the dashboard.
