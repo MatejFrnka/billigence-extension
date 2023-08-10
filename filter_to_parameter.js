@@ -4,7 +4,7 @@
 (function () {
 
   const PARAMETER_ALL_VALUE = "All"
-  const CONFIGURE_PATH = `/config.html`;
+  const CONFIGURE_PATH = `/billigence-extension/config.html`;
 
   let resettingFilters = false;
 
