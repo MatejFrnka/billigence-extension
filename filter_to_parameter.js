@@ -19,7 +19,7 @@
       initializeListeners();
     }, function (err) {
       // Something went wrong in initialization.
-      console.log('Error while Initializing: ' + err.toString());
+      console.error('Error while Initializing: ' + err.toString());
     });
   });
 
@@ -28,7 +28,7 @@
 
     tableau.extensions.ui.displayDialogAsync(popupUrl, 10, {
       height: 500,
-      width: 600
+      width: 680
     }).catch((error) => {
       if (error.errorCode !== tableau.ErrorCodes.DialogClosedByUser) {
         console.error(error)
@@ -113,7 +113,6 @@
       }
 
       let returnedParams = await Promise.all(parameterPromises);
-      console.log(returnedParams)
       for (let i = 0; i < returnedParams.length; i++) {
         // Reset parameter
         returnedParams[i].changeValueAsync(PARAMETER_ALL_VALUE)

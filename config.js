@@ -47,7 +47,7 @@
   }
 
   function setupUI() {
-    addButton.addEventListener('click', addNewItem);
+    addButton.addEventListener('click', (_) => addNewItem());
     saveButton.addEventListener('click', saveItems);
   }
 
@@ -67,8 +67,7 @@
 
     tableau.extensions.settings.set("pairs", JSON.stringify(pairs))
 
-    tableau.extensions.settings.saveAsync().then((newSavedSettings) => {
-      console.log(newSavedSettings)
+    tableau.extensions.settings.saveAsync().then((_) => {
       tableau.extensions.ui.closeDialog();
     });
   }
@@ -89,6 +88,21 @@
     return filters.map(filter => filter.fieldName);
   }
 
+  function createMoveButton(text, clickHandler) {
+    const button = document.createElement('button');
+    button.innerHTML = text;
+    button.addEventListener('click', clickHandler);
+    return button;
+  }
+
+  function updateItemNumbers() {
+    const items = Array.from(itemsContainer.children);
+    items.forEach((item, index) => {
+      const itemNumber = item.querySelector('.item-number');
+      itemNumber.textContent = `${index + 1}:`;
+    });
+  }
+
   function addNewItem(filter = null, param = null) {
     const values = getParameters();
     const keys = getFilters();
@@ -98,6 +112,7 @@
 
     const itemNumber = document.createElement('span');
     itemNumber.textContent = `${itemCounter}:`;
+    itemNumber.classList.add('item-number');
     itemCounter++;
 
     const selectBoxFilter = createSelectBox("Filter: ", keys, filter);
@@ -108,11 +123,30 @@
     removeButton.addEventListener('click', () => {
       itemCounter--;
       itemsContainer.removeChild(itemDiv);
+      updateItemNumbers();
+    });
+
+    const moveUpButton = createMoveButton('&#8593;', () => {
+      const currentIndex = Array.from(itemsContainer.children).indexOf(itemDiv);
+      if (currentIndex > 0) {
+        itemsContainer.insertBefore(itemDiv, itemsContainer.children[currentIndex - 1]);
+        updateItemNumbers();
+      }
+    });
+
+    const moveDownButton = createMoveButton('&#8595;', () => {
+      const currentIndex = Array.from(itemsContainer.children).indexOf(itemDiv);
+      if (currentIndex < itemsContainer.children.length - 1) {
+        itemsContainer.insertBefore(itemDiv, itemsContainer.children[currentIndex + 2]);
+        updateItemNumbers();
+      }
     });
 
     itemDiv.appendChild(itemNumber);
     itemDiv.appendChild(selectBoxFilter);
     itemDiv.appendChild(selectBoxParam);
+    itemDiv.appendChild(moveUpButton);
+    itemDiv.appendChild(moveDownButton);
     itemDiv.appendChild(removeButton);
 
     itemsContainer.appendChild(itemDiv);
