@@ -9,7 +9,7 @@
 
   let parameters = [];
   let filters = [];
-
+  let itemCounter = 1;
   $(document).ready(function () {
     tableau.extensions.initializeDialogAsync().then(async function (_) {
       await loadFiltersAndParams()
@@ -52,28 +52,32 @@
   }
 
   function showExistingPairs() {
-    const settings = tableau.extensions.settings.getAll()
-    for (const key in settings) {
-      addNewItem(key, settings[key])
+    const pairs = getFilterParamPairs()
+    for (const pair of pairs) {
+      addNewItem(pair.filter, pair.param)
     }
   }
 
   function closeDialog(savedData) {
-    const settings = tableau.extensions.settings.getAll()
-    for (const key in settings) {
-      tableau.extensions.settings.erase(key);
-    }
+    let pairs = []
+
     for (const val of savedData) {
-      tableau.extensions.settings.set(val[0], val[1]);
+      pairs.push({"filter": val[0], "param": val[1]})
     }
+
+    tableau.extensions.settings.set("pairs", JSON.stringify(pairs))
 
     tableau.extensions.settings.saveAsync().then((newSavedSettings) => {
       console.log(newSavedSettings)
       tableau.extensions.ui.closeDialog();
     });
-
-
   }
+
+  function getFilterParamPairs() {
+    const pairsString = tableau.extensions.settings.get("pairs")
+    return JSON.parse(pairsString);
+  }
+
 
   // === UI CONTROLS ==
 
@@ -92,15 +96,21 @@
     const itemDiv = document.createElement('div');
     itemDiv.classList.add('item');
 
+    const itemNumber = document.createElement('span');
+    itemNumber.textContent = `${itemCounter}:`;
+    itemCounter++;
+
     const selectBoxFilter = createSelectBox("Filter: ", keys, filter);
     const selectBoxParam = createSelectBox("Parameter: ", values, param);
 
     const removeButton = document.createElement('button');
     removeButton.textContent = 'Remove';
     removeButton.addEventListener('click', () => {
+      itemCounter--;
       itemsContainer.removeChild(itemDiv);
     });
 
+    itemDiv.appendChild(itemNumber);
     itemDiv.appendChild(selectBoxFilter);
     itemDiv.appendChild(selectBoxParam);
     itemDiv.appendChild(removeButton);
