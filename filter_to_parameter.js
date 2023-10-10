@@ -4,7 +4,7 @@
 (function () {
 
   const PARAMETER_ALL_VALUE = "All"
-  const CONFIGURE_PATH = `/billigence-extension/config.html`;
+  const CONFIGURE_PATH = `/tab_ext/config.html`;
 
   let resettingFilters = false;
 
@@ -15,7 +15,6 @@
 
   $(document).ready(function () {
     tableau.extensions.initializeAsync({'configure': configure}).then(function () {
-      configure()
       initializeListeners();
     }, function (err) {
       // Something went wrong in initialization.
