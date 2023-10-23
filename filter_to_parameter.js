@@ -97,6 +97,7 @@
       if (changeIsHandled) {
         console.log("Event ignore because filters are being reset by the following event:")
         console.log(blockingFilterEvent)
+        console.log("HANDLE EVENT ENDED - 2")
         return
       }
       changeIsHandled = true;
@@ -108,11 +109,11 @@
       } catch (e) {
         console.error(e)
       } finally {
-        console.log("HANDLE EVENT ENDED")
         blockingFilterEvent = null;
         changeIsHandled = false;
       }
     }
+    console.log("HANDLE EVENT ENDED")
   }
 
   /**
