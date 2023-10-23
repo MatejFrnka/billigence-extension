@@ -20,6 +20,11 @@
    * @type {boolean}
    */
   let changeIsHandled = false; // todo maybe removing this could change something
+  /**
+   * Filter Event that is currently blocking all other filter changed events
+   * @type {String|null}
+   */
+  let blockingFilterEvent = null;
 
   /**
    * Utility function that returns the saved configuration of extension
@@ -80,29 +85,33 @@
    * @returns {Promise<void>}
    */
   async function filterChangedHandler(filterEvent) {
-    // return if filter resetting is already in progress
-    if (changeIsHandled) {
-      console.log("Event ignore because filters are being reset - " + filterEvent.fieldName)
-      return
-    }
-    changeIsHandled = true;
     console.log("HANDLE EVENT STARTED")
-    try {
-      // find parameter this filter is supposed to change
-      console.log("finding pair for " + filterEvent.fieldName)
-      let pairIndex = findFilterPairIndex(filterEvent.fieldName) // todo: maybe this finds a filter that it is not supposed to find and resets - probably not
-      console.log(pairIndex)
-      // if any parameter is found
-      if (pairIndex !== null) {
+    // find parameter this filter is supposed to change
+    console.log("finding pair for " + filterEvent.fieldName)
+    let pairIndex = findFilterPairIndex(filterEvent.fieldName)
+    console.log(pairIndex)
+
+    // if any parameter is found
+    if (pairIndex !== null) {
+      // return if filter resetting is already in progress
+      if (changeIsHandled) {
+        console.log("Event ignore because filters are being reset by the following event:")
+        console.log(blockingFilterEvent)
+        return
+      }
+      changeIsHandled = true;
+      blockingFilterEvent = filterEvent
+      try {
         // get object Filter, pass it to updateParameter
         let filter = await filterEvent.getFilterAsync()
         await updateParameter(filter, pairIndex)
+      } catch (e) {
+        console.error(e)
+      } finally {
+        console.log("HANDLE EVENT ENDED")
+        blockingFilterEvent = null;
+        changeIsHandled = false;
       }
-    } catch (e) {
-      console.error(e)
-    } finally {
-      console.log("HANDLE EVENT ENDED")
-      changeIsHandled = false;
     }
   }
 
