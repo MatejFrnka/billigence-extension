@@ -194,10 +194,10 @@
           console.log("clearing filter " + filterName)
           let promise = dashboard.worksheets[j].clearFilterAsync(filterName)
             .then((e) => {
-              console.log(`filter ${e} cleared`)
+              console.log(`filter ${e} from worksheet ${dashboard.worksheets[j].name} cleared`)
             })
             .catch(_ => {
-              console.log("filter " + filterName + " from worksheet " + dashboard.worksheets[j].name + " not found (it shouldn't be an issue)")
+              console.log("%cfilter " + filterName + " from worksheet " + dashboard.worksheets[j].name + " not found (it shouldn't be an issue)", "font-size: smaller; color: gray")
               // don't do anything - errors will be thrown for every worksheet that doesn't have the filter
               // this may reset filters on other worksheets than the intended ones. Should this be applied to only one worksheet or to all?
               // it would be better to do it for one specific worksheet to improve performance for bigger projects
